@@ -6,35 +6,14 @@
     <title>D&D Token Maker</title>
     <style>
         body {
-            font-family: sans-serif;
-            background-color: #333;
-            color: #eee;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
+            font-family: sans-serif; background-color: #333; color: #eee;
+            padding: 20px; display: flex; justify-content: center;
         }
-        .main-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-        .top-content {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 30px;
-            flex-wrap: wrap; /* 画面が狭い場合に折り返す */
-        }
-        /* ▼ 3つのカラムの基本設定 ▼ */
-        .left-pane, .center-pane, .right-pane {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+        .main-wrapper { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .top-content { display: flex; justify-content: center; align-items: flex-start; gap: 30px; flex-wrap: wrap; }
+        .left-pane, .center-pane, .right-pane { display: flex; flex-direction: column; gap: 20px; }
         .left-pane { align-items: center; }
-        .center-pane { width: 300px; }
-        .right-pane { width: 300px; }
+        .center-pane, .right-pane { width: 300px; }
 
         h1 { margin: 0 0 10px 0; color: #fff; text-shadow: 0 0 5px #000; }
         
@@ -48,29 +27,20 @@
               linear-gradient(-45deg, transparent 75%, #ccc 75%);
             background-size: 20px 20px;
             background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            border-radius: 8px;
-            cursor: move;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            border-radius: 8px; cursor: move; transition: border-color 0.3s, box-shadow 0.3s;
         }
         #canvas.dragover { border-color: #00aaff; box-shadow: 0 0 15px rgba(0, 170, 255, 0.7); }
         
         .panel {
-            background-color: #444;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            width: 100%;
-            box-sizing: border-box;
+            background-color: #444; padding: 15px; border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2); width: 100%; box-sizing: border-box;
         }
         .panel h2 { margin: 0 0 10px 0; font-weight: bold; font-size: 1.1em; }
         .panel p { margin: 5px 0 0 0; font-size: 0.9em; color: #ccc; }
         
         #token-frames {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
-            gap: 10px;
-            max-height: 350px; /* 高さを確保 */
-            overflow-y: auto; padding-right: 5px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+            gap: 10px; max-height: 280px; overflow-y: auto; padding-right: 5px;
         }
         #token-frames img {
             width: 100%; height: auto; border: 2px solid #666; border-radius: 50%;
@@ -79,7 +49,7 @@
         #token-frames img:hover { transform: scale(1.1); }
         #token-frames img.selected { border-color: #00aaff; box-shadow: 0 0 10px #00aaff; }
 
-        #custom-frame-area { display: flex; align-items: center; gap: 10px; }
+        #custom-frame-area { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
         #custom-frame-area label {
             padding: 5px 10px; background-color: #555; border-radius: 5px;
             cursor: pointer; font-size: 14px; flex-shrink: 0;
@@ -89,13 +59,22 @@
         #custom-frame-preview { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
         #custom-frame-clear { cursor: pointer; font-size: 24px; color: #aaa; font-weight: bold; line-height: 1; }
         #custom-frame-clear:hover { color: white; }
+        
+        #mask-generator-area button { width: 100%; padding: 8px; margin-bottom: 15px; }
+        
+        /* ▼▼▼ スライダーのはみ出しを修正 ▼▼▼ */
+        #mask-slider-area {
+            display: grid;
+            grid-template-columns: auto 1fr; /* ラベルは自動幅、スライダーは残り全部 */
+            gap: 10px;
+            align-items: center;
+        }
+        /* ▲▲▲ 修正箇所 ▲▲▲ */
+        
+        #mask-slider-area label { font-size: 14px; white-space: nowrap; }
         .hidden { display: none !important; }
 
-        .bottom-pane {
-            width: 912px; /* (Left 262) + (Center 300) + (Right 300) + (Gap 30*2) */
-            max-width: 100%; /* 画面幅を超える場合は縮小 */
-            display: flex; flex-direction: column; gap: 20px; align-items: center;
-        }
+        .bottom-pane { width: 912px; max-width: 100%; display: flex; flex-direction: column; gap: 20px; align-items: center; }
         .filter-controls .slider-group {
             display: grid; grid-template-columns: 80px 1fr 60px 25px;
             align-items: center; gap: 10px; margin-bottom: 8px;
@@ -113,9 +92,9 @@
         .filter-controls .reset-btn:hover { color: white; }
         .download-buttons { display: flex; gap: 10px; justify-content: space-around; width: 100%; }
         button {
-            flex-grow: 1; padding: 10px 15px; border: none; border-radius: 5px;
-            font-size: 16px; cursor: pointer; transition: background-color 0.2s;
+            border: none; border-radius: 5px; font-size: 16px; cursor: pointer; transition: background-color 0.2s;
         }
+        .download-buttons button { flex-grow: 1; padding: 10px 15px; }
         #downloadPng { background-color: #007bff; color: white; }
         #downloadWebp { background-color: #28a745; color: white; }
     </style>
@@ -123,19 +102,16 @@
 <body>
     <div class="main-wrapper">
         <div class="top-content">
-            <!-- Left Pane -->
             <div class="left-pane">
                 <h1>D&D Token Maker</h1>
                 <canvas id="canvas" width="256" height="256"></canvas>
             </div>
-            <!-- Center Pane -->
             <div class="center-pane">
                 <div class="panel" style="height: 100%;">
                     <h2>2. トークン枠を選択</h2>
                     <div id="token-frames"></div>
                 </div>
             </div>
-            <!-- Right Pane -->
             <div class="right-pane">
                 <div class="panel">
                     <h2>1. キャラクター画像を選択</h2>
@@ -150,10 +126,13 @@
                         <img id="custom-frame-preview" class="hidden">
                         <span id="custom-frame-clear" class="hidden">&times;</span>
                     </div>
-                </div>
-                <div class="panel">
-                    <h2>4. 調整方法</h2>
-                    <p>・<b>移動:</b> 画像をドラッグ<br>・<b>ズーム:</b> マウスホイール or ピンチ操作</p>
+                    <div id="mask-generator-area" class="hidden">
+                        <button id="generate-mask-btn">マスクを自動生成</button>
+                        <div id="mask-slider-area" class="hidden">
+                            <label for="mask-threshold-slider">マスク調整 (しきい値)</label>
+                            <input type="range" id="mask-threshold-slider" min="0" max="255" value="10">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -162,27 +141,19 @@
             <div class="panel filter-controls">
                 <div class="slider-group">
                     <label for="hueSlider">色相</label>
-                    <input type="range" id="hueSlider" min="0" max="360" value="0" step="1">
-                    <input type="number" id="hueInput" min="0" max="360" value="0">
-                    <button class="reset-btn" data-filter="hue">⟳</button>
+                    <input type="range" id="hueSlider" min="0" max="360" value="0" step="1"><input type="number" id="hueInput" min="0" max="360" value="0"><button class="reset-btn" data-filter="hue">⟳</button>
                 </div>
                 <div class="slider-group">
                     <label for="brightnessSlider">明度</label>
-                    <input type="range" id="brightnessSlider" min="0" max="200" value="100" step="1">
-                    <input type="number" id="brightnessInput" min="0" max="200" value="100">
-                    <button class="reset-btn" data-filter="brightness">⟳</button>
+                    <input type="range" id="brightnessSlider" min="0" max="200" value="100" step="1"><input type="number" id="brightnessInput" min="0" max="200" value="100"><button class="reset-btn" data-filter="brightness">⟳</button>
                 </div>
                 <div class="slider-group">
                     <label for="saturateSlider">彩度</label>
-                    <input type="range" id="saturateSlider" min="0" max="200" value="100" step="1">
-                    <input type="number" id="saturateInput" min="0" max="200" value="100">
-                    <button class="reset-btn" data-filter="saturate">⟳</button>
+                    <input type="range" id="saturateSlider" min="0" max="200" value="100" step="1"><input type="number" id="saturateInput" min="0" max="200" value="100"><button class="reset-btn" data-filter="saturate">⟳</button>
                 </div>
                 <div class="slider-group">
                     <label for="contrastSlider">ｺﾝﾄﾗｽﾄ</label>
-                    <input type="range" id="contrastSlider" min="0" max="200" value="100" step="1">
-                    <input type="number" id="contrastInput" min="0" max="200" value="100">
-                    <button class="reset-btn" data-filter="contrast">⟳</button>
+                    <input type="range" id="contrastSlider" min="0" max="200" value="100" step="1"><input type="number" id="contrastInput" min="0" max="200" value="100"><button class="reset-btn" data-filter="contrast">⟳</button>
                 </div>
             </div>
             <div class="download-buttons">
@@ -196,36 +167,33 @@
         // --- 設定 ---
         const FRAME_FILES = Array.from({ length: 20 }, (_, i) => `${String(i + 1).padStart(3, '0')}.png`);
         const FRAME_DIR = "frames";
-        const BORDER_WIDTH = 15;
+        const BORDER_WIDTH = 15; // 円形クリッピング用
         const DEFAULT_FILTERS = { hue: 0, brightness: 100, saturate: 100, contrast: 100 };
 
         // --- DOM要素 ---
         const canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
         const imageLoader = document.getElementById('imageLoader');
         const tokenFramesContainer = document.getElementById('token-frames');
-        const downloadPngBtn = document.getElementById('downloadPng');
-        const downloadWebpBtn = document.getElementById('downloadWebp');
-        const sliders = {
-            hue: document.getElementById('hueSlider'), brightness: document.getElementById('brightnessSlider'),
-            saturate: document.getElementById('saturateSlider'), contrast: document.getElementById('contrastSlider')
-        };
-        const inputs = {
-            hue: document.getElementById('hueInput'), brightness: document.getElementById('brightnessInput'),
-            saturate: document.getElementById('saturateInput'), contrast: document.getElementById('contrastInput')
-        };
         const customFrameLoader = document.getElementById('custom-frame-loader');
         const customFramePreview = document.getElementById('custom-frame-preview');
         const customFrameClearBtn = document.getElementById('custom-frame-clear');
+        const maskGeneratorArea = document.getElementById('mask-generator-area');
+        const generateMaskBtn = document.getElementById('generate-mask-btn');
+        const maskSliderArea = document.getElementById('mask-slider-area');
+        const maskThresholdSlider = document.getElementById('mask-threshold-slider');
+        const sliders = { hue: document.getElementById('hueSlider'), brightness: document.getElementById('brightnessSlider'), saturate: document.getElementById('saturateSlider'), contrast: document.getElementById('contrastSlider') };
+        const inputs = { hue: document.getElementById('hueInput'), brightness: document.getElementById('brightnessInput'), saturate: document.getElementById('saturateInput'), contrast: document.getElementById('contrastInput') };
+        const downloadPngBtn = document.getElementById('downloadPng'), downloadWebpBtn = document.getElementById('downloadWebp');
+
 
         // --- 変数 ---
-        let userImage = new Image();
-        let frameImage = new Image();
-        let customFrameImage = new Image();
+        let userImage = new Image(), frameImage = new Image(), customFrameImage = new Image();
         let scale = 1.0, offset = { x: 0, y: 0 };
         let isDragging = false, dragStart = { x: 0, y: 0 };
         let currentFrameSrc = `${FRAME_DIR}/${FRAME_FILES[0] || ''}`;
         let isCustomFrameActive = false;
-        
+        let customFrameMaskCanvas = null;
+
         function init() {
             setupFrameSelector();
             if (FRAME_FILES.length > 0) loadFrameImage(currentFrameSrc);
@@ -247,27 +215,21 @@
             imageLoader.addEventListener('change', e => loadImageFromFile(e.target.files[0]));
             customFrameLoader.addEventListener('change', e => loadImageFromFile(e.target.files[0], true));
             customFrameClearBtn.addEventListener('click', clearCustomFrame);
+            generateMaskBtn.addEventListener('click', () => generateMask(true));
+            maskThresholdSlider.addEventListener('input', () => generateMask(false));
 
-            canvas.addEventListener('mousedown', startDrag);
-            canvas.addEventListener('mousemove', doDrag);
-            canvas.addEventListener('mouseup', stopDrag);
-            canvas.addEventListener('mouseleave', stopDrag);
+            canvas.addEventListener('mousedown', startDrag); canvas.addEventListener('mousemove', doDrag);
+            canvas.addEventListener('mouseup', stopDrag); canvas.addEventListener('mouseleave', stopDrag);
             canvas.addEventListener('wheel', handleWheelZoom, { passive: false });
-            canvas.addEventListener('touchstart', startDrag);
-            canvas.addEventListener('touchmove', doDrag);
-            canvas.addEventListener('touchend', stopDrag);
-            canvas.addEventListener('dragover', handleDragOver);
-            canvas.addEventListener('dragleave', handleDragLeave);
+            canvas.addEventListener('touchstart', startDrag); canvas.addEventListener('touchmove', doDrag); canvas.addEventListener('touchend', stopDrag);
+            canvas.addEventListener('dragover', handleDragOver); canvas.addEventListener('dragleave', handleDragLeave);
             canvas.addEventListener('drop', handleDrop);
 
             for (const type in sliders) {
                 sliders[type].addEventListener('input', () => syncSliderAndInput(type, 'slider'));
                 inputs[type].addEventListener('input', () => syncSliderAndInput(type, 'input'));
             }
-            document.querySelectorAll('.reset-btn').forEach(btn => {
-                btn.addEventListener('click', () => resetFilter(btn.dataset.filter));
-            });
-            
+            document.querySelectorAll('.reset-btn').forEach(btn => btn.addEventListener('click', () => resetFilter(btn.dataset.filter)));
             downloadPngBtn.addEventListener('click', () => downloadImage('png'));
             downloadWebpBtn.addEventListener('click', () => downloadImage('webp'));
         }
@@ -284,6 +246,9 @@
                         customFramePreview.src = event.target.result;
                         customFramePreview.classList.remove('hidden');
                         customFrameClearBtn.classList.remove('hidden');
+                        maskGeneratorArea.classList.remove('hidden');
+                        maskSliderArea.classList.add('hidden');
+                        customFrameMaskCanvas = null;
                         document.querySelectorAll('#token-frames img.selected').forEach(img => img.classList.remove('selected'));
                     } else { resetImageTransform(); }
                     draw();
@@ -297,18 +262,64 @@
             customFrameLoader.value = '';
             customFramePreview.classList.add('hidden');
             customFrameClearBtn.classList.add('hidden');
+            maskGeneratorArea.classList.add('hidden');
+            customFrameMaskCanvas = null;
             const lastSelected = document.querySelector(`#token-frames img[data-src="${currentFrameSrc}"]`);
             if(lastSelected) lastSelected.classList.add('selected');
             draw();
         }
 
+        function generateMask(showSlider) {
+            if (!customFrameImage.src) return;
+            if (showSlider) maskSliderArea.classList.remove('hidden');
+            
+            const threshold = parseInt(maskThresholdSlider.value, 10);
+            const w = customFrameImage.width, h = customFrameImage.height;
+
+            const offscreen = new OffscreenCanvas(w, h);
+            const offCtx = offscreen.getContext('2d');
+            offCtx.drawImage(customFrameImage, 0, 0);
+            const imageData = offCtx.getImageData(0, 0, w, h);
+            const data = imageData.data;
+
+            const maskData = new ImageData(w, h);
+            const visited = new Uint8Array(w * h);
+            const queue = [];
+
+            const startX = Math.floor(w / 2), startY = Math.floor(h / 2);
+            queue.push([startX, startY]);
+            visited[startY * w + startX] = 1;
+
+            while (queue.length > 0) {
+                const [x, y] = queue.shift();
+                const idx = (y * w + x);
+                const alpha = data[idx * 4 + 3];
+
+                if (alpha <= threshold) {
+                    maskData.data[idx * 4] = 255;
+                    maskData.data[idx * 4 + 1] = 255;
+                    maskData.data[idx * 4 + 2] = 255;
+                    maskData.data[idx * 4 + 3] = 255;
+
+                    [[x+1, y], [x-1, y], [x, y+1], [x, y-1]].forEach(([nx, ny]) => {
+                        if (nx >= 0 && nx < w && ny >= 0 && ny < h && !visited[ny * w + nx]) {
+                            visited[ny * w + nx] = 1;
+                            queue.push([nx, ny]);
+                        }
+                    });
+                }
+            }
+            
+            if (!customFrameMaskCanvas) {
+                customFrameMaskCanvas = new OffscreenCanvas(w, h);
+            }
+            customFrameMaskCanvas.getContext('2d').putImageData(maskData, 0, 0);
+            draw();
+        }
+
         function handleDragOver(e) { e.preventDefault(); canvas.classList.add('dragover'); }
         function handleDragLeave(e) { e.preventDefault(); canvas.classList.remove('dragover'); }
-        function handleDrop(e) {
-            e.preventDefault();
-            canvas.classList.remove('dragover');
-            loadImageFromFile(e.dataTransfer.files[0]);
-        }
+        function handleDrop(e) { e.preventDefault(); canvas.classList.remove('dragover'); loadImageFromFile(e.dataTransfer.files[0]); }
         function handleFrameSelect(e) {
             if (isCustomFrameActive) clearCustomFrame();
             currentFrameSrc = e.target.dataset.src;
@@ -316,31 +327,20 @@
             e.target.classList.add('selected');
             loadFrameImage(currentFrameSrc);
         }
-        function loadFrameImage(src) {
-            frameImage.src = src;
-            frameImage.onload = draw;
-        }
+        function loadFrameImage(src) { frameImage.src = src; frameImage.onload = draw; }
 
         function syncSliderAndInput(type, source) {
             let value = (source === 'slider') ? sliders[type].value : inputs[type].value;
-            const min = parseFloat(sliders[type].min);
-            const max = parseFloat(sliders[type].max);
-            if (value > max) value = max;
-            if (value < min || value === '') value = min;
-            
-            sliders[type].value = value;
-            inputs[type].value = value;
+            const min = parseFloat(sliders[type].min), max = parseFloat(sliders[type].max);
+            if (value > max) value = max; if (value < min || value === '') value = min;
+            sliders[type].value = inputs[type].value = value;
             draw();
         }
         function resetFilter(type) {
-            sliders[type].value = DEFAULT_FILTERS[type];
-            inputs[type].value = DEFAULT_FILTERS[type];
+            sliders[type].value = inputs[type].value = DEFAULT_FILTERS[type];
             draw();
         }
-        function getFilterString() {
-            return `hue-rotate(${sliders.hue.value}deg) brightness(${sliders.brightness.value}%) saturate(${sliders.saturate.value}%) contrast(${sliders.contrast.value}%)`;
-        }
-
+        function getFilterString() { return `hue-rotate(${sliders.hue.value}deg) brightness(${sliders.brightness.value}%) saturate(${sliders.saturate.value}%) contrast(${sliders.contrast.value}%)`; }
         function handleWheelZoom(e) {
             e.preventDefault();
             const zoomIntensity = 0.1;
@@ -348,25 +348,9 @@
             scale = Math.max(0.1, Math.min(5, scale + direction * zoomIntensity));
             draw();
         }
-        function getEventPosition(e) {
-            const touch = e.touches && e.touches[0];
-            return { x: touch ? touch.clientX : e.clientX, y: touch ? touch.clientY : e.clientY };
-        }
-        function startDrag(e) {
-            isDragging = true;
-            const pos = getEventPosition(e);
-            dragStart.x = pos.x - offset.x;
-            dragStart.y = pos.y - offset.y;
-        }
-        function doDrag(e) {
-            if (isDragging) {
-                e.preventDefault();
-                const pos = getEventPosition(e);
-                offset.x = pos.x - dragStart.x;
-                offset.y = pos.y - dragStart.y;
-                draw();
-            }
-        }
+        function getEventPosition(e) { const touch = e.touches && e.touches[0]; return { x: touch ? touch.clientX : e.clientX, y: touch ? touch.clientY : e.clientY }; }
+        function startDrag(e) { isDragging = true; const pos = getEventPosition(e); dragStart.x = pos.x - offset.x; dragStart.y = pos.y - offset.y; }
+        function doDrag(e) { if (isDragging) { e.preventDefault(); const pos = getEventPosition(e); offset.x = pos.x - dragStart.x; offset.y = pos.y - dragStart.y; draw(); } }
         function stopDrag() { isDragging = false; }
         function resetImageTransform() { scale = 1.0; offset = { x: 0, y: 0 }; }
         
@@ -374,17 +358,23 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             if (userImage.src) {
                 ctx.save();
-                const radius = canvas.width / 2 - BORDER_WIDTH;
-                ctx.beginPath();
-                ctx.arc(canvas.width / 2, canvas.height / 2, radius, 0, Math.PI * 2, true);
-                ctx.clip();
-                const imgWidth = userImage.width * scale;
-                const imgHeight = userImage.height * scale;
+                const imgWidth = userImage.width * scale, imgHeight = userImage.height * scale;
                 const imgX = (canvas.width - imgWidth) / 2 + offset.x;
                 const imgY = (canvas.height - imgHeight) / 2 + offset.y;
                 ctx.drawImage(userImage, imgX, imgY, imgWidth, imgHeight);
+
+                if (isCustomFrameActive && customFrameMaskCanvas) {
+                    ctx.globalCompositeOperation = 'destination-in';
+                    ctx.drawImage(customFrameMaskCanvas, 0, 0, canvas.width, canvas.height);
+                } else {
+                    ctx.globalCompositeOperation = 'destination-in';
+                    ctx.beginPath();
+                    ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2 - BORDER_WIDTH, 0, Math.PI * 2);
+                    ctx.fill();
+                }
                 ctx.restore();
             }
+            
             const activeFrame = isCustomFrameActive ? customFrameImage : frameImage;
             if (activeFrame.src) {
                 ctx.save();
